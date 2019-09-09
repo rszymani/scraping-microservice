@@ -1,0 +1,3 @@
+Stworzono system umożliwiający na pobieranie, a także zapisywanie tekstu i obrazków ze stron html. Wszystkie pobrane dane są zapisywane w katalogu scraped_resources w plikach odpowiednio /texts i images/<id>. Jest to najprostsza wersja i w zależności od konkretnych wymagań należałoby rozważyć również inne sposoby zapisu jak np. rozproszona baza danych. 
+Dodatkowo należałoby rozszerzyć, a także uszczelnić testy, zwłaszcza obiektów API - jedną ze zmian których można dokonać jest użycie obiektów Mock.
+Jako, że pobieramy dane z różnych stron (a nie o jednej strukturze) warto by było rozszerzyć sposób parsowania tych stron o jakieś nietypowe elementy.
