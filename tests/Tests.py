@@ -4,17 +4,17 @@ import os
 
 import shutil
 
-sys.path.append('.')
 from API import Service
 from API import Storage
 from API import app
-from API import api
+sys.path.append('.')
 
-from unittest.mock import Mock
 
 class ServiceTests(unittest.TestCase):
+
     def setUp(self):
         self.service = Service()
+        self.base_path = os.path.dirname(os.path.abspath("."))
 
     def test_extract_text_from_html(self):
         html = '''<html>
@@ -40,54 +40,53 @@ class ServiceTests(unittest.TestCase):
                         </p>
                     </body>
                 </html>'''
-        self.assertEqual(self.service.get_images_urls(html)[0], "https://www.w3schools.com/images/w3schools_green.jpg")
-        self.assertEqual(self.service.get_images_urls(html)[1], "https://www.wprost.pl/_thumb/eb/0a/916ecd6cd846ccd9b4bbc8bbe1ea.jpeg")
-    # def test_get_html_text(self):
-    #     self.service.get_html_text("sdafasdf")
+        self.assertEqual(self.service.get_images_urls(html)[0],
+                         "https://www.w3schools.com/images/w3schools_green.jpg")
+        self.assertEqual(self.service.get_images_urls(html)[1],
+                         "https://www.wprost.pl/_thumb/eb/0a/916ecd6cd846ccd9b4bbc8bbe1ea.jpeg")
+
+
 class StorageTests(unittest.TestCase):
     def setUp(self):
         self.storage = Storage()
+        self.base_path = os.path.dirname(os.path.abspath("."))
+
     def tearDown(self):
         try:
-            os.remove("scraped_resources/texts/test_text.txt")
-            os.rmdir("scraped_resources/images/test_dir/")
-            shutil.rmtree("scraped_resources/images/test_save_images/",ignore_errors=True)
+            os.remove("{}/scraped_resources/texts/test_text.txt".format(self.base_path))
+            os.rmdir("{}/scraped_resources/images/test_dir/".format(self.base_path))
+            shutil.rmtree("{}/scraped_resources/images/test_save_images/".format(self.base_path), ignore_errors=True)
         except OSError as why:
             print("Not cleaned directory")
 
     def test_create_images_dir(self):
         directory_path = 'test_dir'
         self.storage.create_images_dir(directory_path)
-        self.assertTrue(os.path.exists("scraped_resources/images/{}".format(directory_path)))
+        self.assertTrue(os.path.exists("{}/scraped_resources/images/{}".format(self.base_path, directory_path)))
 
     def test_save_txt_file(self):
-        id = "test_text"
+        text_text_id = "test_text"
         text = "TEST TEXT"
-        self.storage.save_txt_file(text,id)
-        self.assertTrue(os.path.exists('scraped_resources/texts/{}.txt'.format(id)))
-
-    def test_save_images(self):
-        url = "https://realpython.com/"
-        img_urls = ["https://files.realpython.com/media/1-Million-Views_Watermarked.8e2591816b4f.jpg","/static/pytrick-dict-merge.4201a0125a5e.png"]
-        id = "test_save_images"
-        self.storage.save_images(url,img_urls,id)
-        self.assertTrue(os.path.exists('scraped_resources/images/{}/1-Million-Views_Watermarked.8e2591816b4f.jpg'.format(id)))
-        self.assertTrue(os.path.exists('scraped_resources/images/{}/pytrick-dict-merge.4201a0125a5e.png'.format(id)))
+        self.storage.save_txt_file(text, text_text_id)
+        self.assertTrue(os.path.exists('{}/scraped_resources/texts/{}.txt'.format(self.base_path, text_text_id)))
 
     def test_read_text_from_disk(self):
-        uuid_text = "ac385d47-79b8-4d8a-bc49-aeda3dd4cd30"
-        text = "Wyszukiwarka Grafika Mapy Play YouTube Wiadomości Gmail Dysk Więcej » Historia online Ustawienia Zaloguj się Szukanie zaawansowaneNarzędzia językowe Reklamuj się w GoogleRozwiązania dla firmWszystko o GoogleGooglecom C Prywatność Warunki"
+        uuid_text = "2bcb8601-9075-477e-93f1-450f8f30592a"
+        text = "Wyszukiwarka Grafika Mapy Play YouTube Wiadomości Gmail Dysk Więcej » Historia online Ustawienia" \
+               " Zaloguj się Szukanie zaawansowaneNarzędzia językowe Reklamuj się w " \
+               "GoogleRozwiązania dla firmWszystko o GoogleGooglecom C Prywatność Warunki"
         self.assertEqual(self.storage.read_text_from_disk(uuid_text), text)
 
     def test_list_all_images_dir(self):
-        example_ids = ["00554e7f-44cb-4675-a955-39fc065bb212","a8cdea0b-4240-4cb6-873d-16009eecb9f7"]
+        example_ids = ["00554e7f-44cb-4675-a955-39fc065bb212"]
         images_ids = self.storage.list_all_images_ids()
         self.assertTrue(all(elem in images_ids for elem in example_ids))
 
     def test_list_all_images_ids(self):
         images_id = "00554e7f-44cb-4675-a955-39fc065bb212"
         images_names = self.storage.list_all_images_dir(images_id)
-        example_imgs = ["1s6EApbU7HMxJM5CiOnPsn-w132-h132.jpg", "6fw3VjPmUpBZQcTzD4jcA5-w132-h132.jpg", "7PwTVOCJNsFOAhookAa3Rg-w132-h132.png", "20xIWaNoTy4wQEraayzh3v-w990-h170.png"]
+        example_imgs = ["1s6EApbU7HMxJM5CiOnPsn-w132-h132.jpg", "6fw3VjPmUpBZQcTzD4jcA5-w132-h132.jpg",
+                        "7PwTVOCJNsFOAhookAa3Rg-w132-h132.png", "20xIWaNoTy4wQEraayzh3v-w990-h170.png"]
         self.assertTrue(all(elem in images_names for elem in example_imgs ))
 
     def test_list_all_text_ids(self):
@@ -98,21 +97,11 @@ class StorageTests(unittest.TestCase):
     def test_get_image_path(self):
         uuid_images = "00554e7f-44cb-4675-a955-39fc065bb212"
         image = "1s6EApbU7HMxJM5CiOnPsn-w132-h132.jpg"
-        path = "scraped_resources/images/00554e7f-44cb-4675-a955-39fc065bb212/1s6EApbU7HMxJM5CiOnPsn-w132-h132.jpg"
-        self.assertEqual(self.storage.get_image_path(uuid_images,image), path)
-        self.assertFalse(self.storage.get_image_path("does_not_exists",""))
+        path = "{}/scraped_resources/images/00554e7f-44cb-4675-a955-39fc065bb212/1s6EApbU7HMxJM5CiOnPsn-w132-h132.jpg"\
+            .format(self.base_path)
+        self.assertEqual(self.storage.get_image_path(uuid_images, image), path)
+        self.assertFalse(self.storage.get_image_path("does_not_exists", ""))
 
-class ApiTests(unittest.TestCase):
-    def setUp(self):
-        self.client = app.test_client()
-    def test_ImagesIDs(self):
-        self.assertTrue(self.client.get('/list-images-ids').status_code==200)
-    def test_TextIDs(self):
-        self.assertTrue(self.client.get('/list-text-ids').status_code==200)
-    def test_text(self):
-        self.assertTrue(self.client.get('/text/3dbee8df-e326-4244-b884-816944ce13f7').status_code==200)
-        self.assertTrue(self.client.get('/text/3dbee8df-e326-4244-b884-816944ce13f7').headers['Content-type']=="application/json")
-        self.assertTrue(self.client.get('/text/3dbee8df-e326-4244-b884-816944ce13f7').data)
 
 if __name__ == '__main__':
     unittest.main()

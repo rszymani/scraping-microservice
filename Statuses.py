@@ -1,26 +1,32 @@
 # -*- coding: utf-8 -*-
-from flask import Flask,request,Response,json,send_file,abort
+from flask import Response, json
+
 
 class Statuses:
-    def status_201(self,type="Text"):
-        resp = Response(json.dumps({'status': '201',"message":"{} succesfully saved".format(type)}), 201)
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    def text_json_response(self,id,text):
-        data = {'status': '200',"text":text,"id":id}
+    def text_json_response(self, text_id, text):
+        data = {'status': '200', "text": text, "id": text_id}
         resp = Response(json.dumps(data), 200)
         resp.headers['Content-type'] = 'application/json'
         resp.headers['charset'] = 'utf-8'
         return resp
-    def images_url_response(self,id,images):
-        data = {'status': '200',"images":images,"id":id}
+
+    def images_url_response(self, images_id, images):
+        data = {'status': '200', "images":images, "id": images_id}
         resp = Response(json.dumps(data), 200)
         resp.headers['Content-type'] = 'application/json'
         resp.headers['charset'] = 'utf-8'
         return resp
-    def ids_response(self,ids):
-        data = {'status': '200',"ids":ids}
+
+    def ids_response(self, ids):
+        data = {'status': '200',"ids": ids}
         resp = Response(json.dumps(data), 200)
+        resp.headers['Content-type'] = 'application/json'
+        resp.headers['charset'] = 'utf-8'
+        return resp
+
+    def status_202(self, url_root, status_id):
+        data = {'status': '202', "message": "accepted, status available in {}status/{}".format(url_root, status_id)}
+        resp = Response(json.dumps(data), 202)
         resp.headers['Content-type'] = 'application/json'
         resp.headers['charset'] = 'utf-8'
         return resp

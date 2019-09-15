@@ -1,0 +1,31 @@
+version: '2'
+
+services:  
+
+  redis:
+    image: redis:latest
+    ports:
+        - '6379:6379'
+    
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    command: ./scripts/run_server.sh
+    volumes:
+      - .:/app 
+    ports:
+      - "5000:5000"
+    links:
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./scripts/run_celery.sh
+    volumes:
+      - .:/app
+    links:
+      - redis
