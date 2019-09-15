@@ -1,9 +1,12 @@
 Project is a simple API to scrape text and images from any site.  
 
 To build docker execute command:
-docker-compose build
+
+`docker-compose build`
+
 To run docker execute command:
-docker-compose up
+
+`docker-compose up`
 
 List of example api request:
 - HTTP GET http://127.0.0.1:5000/textIDs - returns all possible text IDs
