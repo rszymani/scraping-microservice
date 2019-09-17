@@ -34,7 +34,6 @@ class Storage:
 
     def list_all_images_dir(self, images_id):
         images_id_dir = "{}/scraped_resources/images/{}/".format(self.base_path, images_id)
-        print(images_id_dir)
         if not os.path.isdir(images_id_dir):
             return None
         return os.listdir(images_id_dir)

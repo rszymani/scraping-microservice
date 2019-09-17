@@ -18,7 +18,7 @@ class Statuses:
         return resp
 
     def ids_response(self, ids):
-        data = {'status': '200',"ids": ids}
+        data = {'status': '200', "ids": ids}
         resp = Response(json.dumps(data), 200)
         resp.headers['Content-type'] = 'application/json'
         resp.headers['charset'] = 'utf-8'

@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import Mock
+from unittest.mock import patch
 import sys
 import os
 
@@ -6,7 +8,7 @@ import shutil
 
 from API import Service
 from API import Storage
-from API import app
+import API
 sys.path.append('.')
 
 
@@ -27,7 +29,8 @@ class ServiceTests(unittest.TestCase):
                         </p>
                     </body>
                 </html>'''
-        self.assertEqual(self.service.extract_text_from_html(html), "Images on Another Server Mouse over this paragraph to display the title attribute as a tooltip")
+        self.assertEqual(self.service.extract_text_from_html(html),
+                         "Images on Another Server Mouse over this paragraph to display the title attribute as a tooltip")
 
     def test_get_images_urls(self):
         html = '''<html>
@@ -101,6 +104,49 @@ class StorageTests(unittest.TestCase):
             .format(self.base_path)
         self.assertEqual(self.storage.get_image_path(uuid_images, image), path)
         self.assertFalse(self.storage.get_image_path("does_not_exists", ""))
+
+
+class APITests(unittest.TestCase):
+    def setUp(self):
+        self.app = API.app
+        self.app.config['TESTING'] = True
+        self.client = self.app.test_client()
+
+    @patch.object(API.storage, 'read_text_from_disk', return_value="Test text")
+    def test_get_text(self, storage):
+        text_id = "test_id"
+        response = self.client.get(
+            '/text/{}'.format(text_id),
+        )
+        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.get_json()["text"], "Test text")
+        self.assertEqual(response.get_json()["id"], text_id)
+
+    @patch.object(API.storage, 'list_all_images_dir', return_value=["image1", "image2"])
+    def test_images_dir(self, storage):
+        images_id = "images_id"
+        response = self.client.get(
+            '/images/{}'.format(images_id),
+        )
+        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.get_json()["images"], ['http://localhost/images-id/images_id/image/image1', 'http://localhost/images-id/images_id/image/image2'])
+        self.assertEqual(response.get_json()["id"], images_id)
+
+    @patch.object(API.storage, 'list_all_images_ids', return_value=["test_id1", "test_id2"])
+    def test_list_all_images_ids(self, storage):
+        response = self.client.get(
+            '/imagesIds'
+        )
+        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.get_json()["ids"], ["test_id1", "test_id2"])
+
+    @patch.object(API.storage, 'list_all_text_ids', return_value=["test_id1", "test_id2"])
+    def test_list_all_text_ids(self, storage):
+        response = self.client.get(
+            '/textIds'
+        )
+        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.get_json()["ids"], ["test_id1", "test_id2"])
 
 
 if __name__ == '__main__':
